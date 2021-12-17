@@ -49,8 +49,8 @@ $Comp
 L Connector:Conn_01x08_Male J4
 U 1 1 61A54FC3
 P 5250 1300
-F 0 "J4" V 5300 1750 50  0000 C CNN
-F 1 "Conn_01x08_Male" V 5400 2000 50  0000 C CNN
+F 0 "J4" V 5400 1750 50  0000 C CNN
+F 1 "Conn_01x08_Male" V 5300 2000 50  0000 C CNN
 F 2 "" H 5250 1300 50  0001 C CNN
 F 3 "~" H 5250 1300 50  0001 C CNN
 	1    5250 1300
@@ -82,8 +82,8 @@ $Comp
 L Connector:Conn_01x08_Male J2
 U 1 1 61A5C83D
 P 4050 1300
-F 0 "J2" V 4100 600 50  0000 C CNN
-F 1 "Conn_01x08_Male" V 4200 500 50  0000 C CNN
+F 0 "J2" V 4200 650 50  0000 C CNN
+F 1 "Conn_01x08_Male" V 4100 500 50  0000 C CNN
 F 2 "" H 4050 1300 50  0001 C CNN
 F 3 "~" H 4050 1300 50  0001 C CNN
 	1    4050 1300
@@ -704,17 +704,6 @@ F 3 "~" H 7650 2200 50  0001 C CNN
 	1    7650 2200
 	1    0    0    -1  
 $EndComp
-$Comp
-L Connector:Conn_01x02_Male J5
-U 1 1 61B036AF
-P 7650 1800
-F 0 "J5" H 7622 1682 50  0000 R CNN
-F 1 "2 Male Header Pins (connect to Arduino)" H 7622 1773 50  0000 R CNN
-F 2 "" H 7650 1800 50  0001 C CNN
-F 3 "~" H 7650 1800 50  0001 C CNN
-	1    7650 1800
-	-1   0    0    1   
-$EndComp
 Wire Wire Line
 	8300 2400 7950 2400
 Wire Wire Line
@@ -765,9 +754,7 @@ F 3 "" H 9300 3000 50  0001 C CNN
 	1    9300 3000
 	1    0    0    -1  
 $EndComp
-Text Label 7050 1700 0    50   ~ 0
-SCL(D21)
-Text Label 7050 1800 0    50   ~ 0
+Text Label 6750 1800 0    50   ~ 0
 SDA(D20)
 Wire Wire Line
 	6850 2400 6850 2950
@@ -803,25 +790,13 @@ Wire Wire Line
 Connection ~ 5450 2950
 Connection ~ 5450 4950
 Wire Wire Line
-	5250 1800 5250 1500
-Text Label 4900 1800 2    50   ~ 0
-Pin3(PinPE5)
-Wire Wire Line
 	3500 5250 3700 5250
 Connection ~ 3500 5250
 Wire Wire Line
-	5350 1900 5350 1500
-Text Label 4900 1900 2    50   ~ 0
-Pin2(PinPE4)
-Wire Wire Line
 	3800 4400 3500 4400
 Connection ~ 3500 4400
-Text Notes 3600 3550 1    50   ~ 0
-Pins 2 and 3 can have\nexternal interrupts, good \nfor counting pulses
-Wire Wire Line
-	3700 1800 5250 1800
-Wire Wire Line
-	5350 1900 3800 1900
+Text Notes 3550 3600 1    50   ~ 0
+Pins D2 and D3 can have\nexternal interrupts, good \nfor counting pulses
 Wire Wire Line
 	5050 5050 7450 5050
 Wire Wire Line
@@ -941,15 +916,7 @@ Wire Wire Line
 Wire Wire Line
 	5450 1700 5450 2950
 Wire Wire Line
-	5450 1700 7450 1700
-Wire Wire Line
-	7450 1800 5550 1800
-Wire Wire Line
 	5550 1800 5550 3050
-Wire Wire Line
-	3700 1800 3700 5250
-Wire Wire Line
-	3800 4400 3800 1900
 Wire Wire Line
 	5150 2750 5150 1500
 Wire Wire Line
@@ -969,22 +936,14 @@ Wire Notes Line
 Text Notes 7350 7500 0    50   ~ 0
 Resin Rocket Sensor Board
 Text Notes 8200 7650 0    50   ~ 0
-Nov 12th, 2021
+Nov 14th, 2021
 Text Notes 10600 7650 0    50   ~ 0
-Original
+A
 NoConn ~ 4050 1500
 Wire Wire Line
 	4150 1500 4150 1550
 Wire Wire Line
 	4150 1550 2250 1550
-Wire Wire Line
-	4250 1500 4250 1650
-Wire Wire Line
-	4250 1650 2250 1650
-Wire Wire Line
-	2250 1750 4350 1750
-Wire Wire Line
-	4350 1750 4350 1500
 $Comp
 L Connector:Conn_01x04_Male J26
 U 1 1 618FCEC3
@@ -996,21 +955,107 @@ F 3 "~" H 2050 1650 50  0001 C CNN
 	1    2050 1650
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	4050 2200 3250 2200
-Wire Wire Line
-	3250 2200 3250 1850
-Wire Wire Line
-	3250 1850 2250 1850
 Connection ~ 4050 2200
 Text Label 2350 1550 0    50   ~ 0
 D10(Red)
 Text Label 2350 1650 0    50   ~ 0
-D9(Black)
+GND(Black)
 Text Label 2350 1750 0    50   ~ 0
-D8(Yellow)
+D9(Yellow)
 Text Label 2350 1850 0    50   ~ 0
-D7(Green)
+D8(Green)
 Text Notes 1250 1800 0    50   ~ 0
-4 pin Male Connector\ngoes to High Power\nCircuit Board
+goes to High Power\nCircuit Board\n<---
+Text GLabel 7550 1000 1    50   Input ~ 0
+D21(SCL)
+Text GLabel 7450 1000 1    50   Input ~ 0
+D20(SDA)
+Text GLabel 7350 1000 1    50   Input ~ 0
+D19(RX1)
+Text GLabel 7250 1000 1    50   Input ~ 0
+D18(TX1)
+Text GLabel 7150 1000 1    50   Input ~ 0
+D17
+Text GLabel 6950 1000 1    50   Input ~ 0
+D15
+Text GLabel 6850 1000 1    50   Input ~ 0
+D14
+$Comp
+L Connector:Conn_01x08_Female J26
+U 1 1 61927238
+P 7250 1200
+F 0 "J26" V 7100 1650 50  0000 C CNN
+F 1 "Conn_01x08_Female" V 7200 1950 50  0000 C CNN
+F 2 "" H 7250 1200 50  0001 C CNN
+F 3 "~" H 7250 1200 50  0001 C CNN
+	1    7250 1200
+	0    1    1    0   
+$EndComp
+Text GLabel 7050 1000 1    50   Input ~ 0
+D16
+Wire Wire Line
+	7550 1500 7550 1700
+Wire Wire Line
+	7450 1500 7450 1800
+Wire Wire Line
+	5450 1700 7550 1700
+Wire Wire Line
+	5550 1800 7450 1800
+Text Label 6750 1700 0    50   ~ 0
+SCL(D21)
+$Comp
+L Connector:Conn_01x02_Male J5
+U 1 1 61B036AF
+P 7550 1300
+F 0 "J5" V 7600 1450 50  0000 R CNN
+F 1 "2 Male Header Pins" V 7700 2100 50  0000 R CNN
+F 2 "" H 7550 1300 50  0001 C CNN
+F 3 "~" H 7550 1300 50  0001 C CNN
+	1    7550 1300
+	0    1    1    0   
+$EndComp
+Text Notes 7600 1700 0    50   ~ 0
+Connect header pins to \nboard using external wires
+Wire Wire Line
+	4050 2200 4050 1650
+Wire Wire Line
+	4050 1650 2250 1650
+Wire Wire Line
+	2250 1750 4250 1750
+Wire Wire Line
+	4250 1500 4250 1750
+Wire Wire Line
+	5350 2000 3800 2000
+Wire Wire Line
+	3700 1900 5250 1900
+Text Label 3550 4400 0    50   ~ 0
+D3
+Wire Wire Line
+	3700 1900 3700 5250
+Wire Wire Line
+	4350 1500 4350 1850
+Wire Wire Line
+	2250 1850 4350 1850
+Wire Wire Line
+	5250 1500 5250 1900
+Wire Wire Line
+	5350 1500 5350 2000
+Wire Wire Line
+	3800 2000 3800 4400
+Text Label 3550 5250 0    50   ~ 0
+D2
+Text Label 5450 3300 1    50   ~ 0
+SCL
+Text Label 5550 3300 1    50   ~ 0
+SDA
+Text Label 4050 3300 1    50   ~ 0
+GND
+Text Label 4150 3300 1    50   ~ 0
+5V
+Text Label 5200 5050 0    50   ~ 0
+D5
+Text Label 5200 6250 0    50   ~ 0
+D6
+Text Label 5200 2750 0    50   ~ 0
+D4
 $EndSCHEMATC
