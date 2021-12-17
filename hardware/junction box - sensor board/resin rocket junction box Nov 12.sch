@@ -31,10 +31,10 @@ SCL(Black)
 Text Label 7050 5050 0    50   ~ 0
 ?(Yellow)
 $Comp
-L Connector:Conn_01x02_Female J?
+L Connector:Conn_01x02_Female J11
 U 1 1 61A4BA22
 P 7650 4450
-F 0 "J?" H 7350 4700 50  0000 L CNN
+F 0 "J11" H 7350 4700 50  0000 L CNN
 F 1 "Conn_01x02_Female" H 6900 4600 50  0000 L CNN
 F 2 "" H 7650 4450 50  0001 C CNN
 F 3 "~" H 7650 4450 50  0001 C CNN
@@ -46,10 +46,10 @@ Text Label 7050 4450 0    50   ~ 0
 Text Label 7050 4550 0    50   ~ 0
 GND(Black)
 $Comp
-L Connector:Conn_01x08_Male J?
+L Connector:Conn_01x08_Male J4
 U 1 1 61A54FC3
 P 5250 1300
-F 0 "J?" V 5300 1750 50  0000 C CNN
+F 0 "J4" V 5300 1750 50  0000 C CNN
 F 1 "Conn_01x08_Male" V 5400 2000 50  0000 C CNN
 F 2 "" H 5250 1300 50  0001 C CNN
 F 3 "~" H 5250 1300 50  0001 C CNN
@@ -57,10 +57,10 @@ F 3 "~" H 5250 1300 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Connector:Conn_01x06_Male J?
+L Connector:Conn_01x06_Male J19
 U 1 1 61A572F0
 P 5200 6800
-F 0 "J?" V 5350 6400 50  0000 R CNN
+F 0 "J19" V 5350 6400 50  0000 R CNN
 F 1 "Conn_01x06_Male" V 5250 6400 50  0000 R CNN
 F 2 "" H 5200 6800 50  0001 C CNN
 F 3 "~" H 5200 6800 50  0001 C CNN
@@ -68,10 +68,10 @@ F 3 "~" H 5200 6800 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Connector:Conn_01x06_Male J?
+L Connector:Conn_01x06_Male J21
 U 1 1 61A58D90
 P 4050 6800
-F 0 "J?" V 4200 7250 50  0000 R CNN
+F 0 "J21" V 4200 7250 50  0000 R CNN
 F 1 "Conn_01x06_Male" V 4100 7750 50  0000 R CNN
 F 2 "" H 4050 6800 50  0001 C CNN
 F 3 "~" H 4050 6800 50  0001 C CNN
@@ -79,10 +79,10 @@ F 3 "~" H 4050 6800 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Connector:Conn_01x08_Male J?
+L Connector:Conn_01x08_Male J2
 U 1 1 61A5C83D
 P 4050 1300
-F 0 "J?" V 4100 600 50  0000 C CNN
+F 0 "J2" V 4100 600 50  0000 C CNN
 F 1 "Conn_01x08_Male" V 4200 500 50  0000 C CNN
 F 2 "" H 4050 1300 50  0001 C CNN
 F 3 "~" H 4050 1300 50  0001 C CNN
@@ -90,10 +90,10 @@ F 3 "~" H 4050 1300 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Connector:Conn_01x08_Female J?
+L Connector:Conn_01x08_Female J1
 U 1 1 61A6B10B
 P 4050 1200
-F 0 "J?" V 3900 550 50  0000 C CNN
+F 0 "J1" V 3900 550 50  0000 C CNN
 F 1 "Conn_01x08_Female" V 4000 350 50  0000 C CNN
 F 2 "" H 4050 1200 50  0001 C CNN
 F 3 "~" H 4050 1200 50  0001 C CNN
@@ -101,10 +101,10 @@ F 3 "~" H 4050 1200 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Connector:Conn_01x08_Female J?
+L Connector:Conn_01x08_Female J3
 U 1 1 61A6C27C
 P 5250 1200
-F 0 "J?" V 5100 1650 50  0000 C CNN
+F 0 "J3" V 5100 1650 50  0000 C CNN
 F 1 "Conn_01x08_Female" V 5200 1950 50  0000 C CNN
 F 2 "" H 5250 1200 50  0001 C CNN
 F 3 "~" H 5250 1200 50  0001 C CNN
@@ -112,10 +112,10 @@ F 3 "~" H 5250 1200 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Connector:Conn_01x06_Female J?
+L Connector:Conn_01x06_Female J18
 U 1 1 61A6DCB8
 P 5200 6900
-F 0 "J?" V 5150 6250 50  0000 R CNN
+F 0 "J18" V 5150 6250 50  0000 R CNN
 F 1 "Conn_01x06_Female" V 5050 6550 50  0000 R CNN
 F 2 "" H 5200 6900 50  0001 C CNN
 F 3 "~" H 5200 6900 50  0001 C CNN
@@ -123,10 +123,10 @@ F 3 "~" H 5200 6900 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Connector:Conn_01x06_Female J?
+L Connector:Conn_01x06_Female J20
 U 1 1 61A708D4
 P 4050 6900
-F 0 "J?" V 4050 7350 50  0000 R CNN
+F 0 "J20" V 4050 7350 50  0000 R CNN
 F 1 "Conn_01x06_Female" V 3900 7950 50  0000 R CNN
 F 2 "" H 4050 6900 50  0001 C CNN
 F 3 "~" H 4050 6900 50  0001 C CNN
@@ -154,10 +154,10 @@ Wire Wire Line
 	4150 7250 4150 7350
 Connection ~ 4150 7250
 $Comp
-L Analog_ADC:ADS1115IDGS U?
+L Analog_ADC:ADS1115IDGS U1
 U 1 1 61A37058
 P 6200 2950
-F 0 "U?" H 5900 3500 50  0000 C CNN
+F 0 "U1" H 5900 3500 50  0000 C CNN
 F 1 "ADS1115IDGS" H 5900 3400 50  0000 C CNN
 F 2 "Package_SO:TSSOP-10_3x3mm_P0.5mm" H 6200 2450 50  0001 C CNN
 F 3 "http://www.ti.com/lit/ds/symlink/ads1113.pdf" H 6150 2050 50  0001 C CNN
@@ -176,10 +176,10 @@ F 3 "" H 9300 4350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Connector:Conn_01x04_Female J?
+L Connector:Conn_01x04_Female J9
 U 1 1 61A97ECB
 P 7650 3550
-F 0 "J?" H 7350 3250 50  0000 L CNN
+F 0 "J9" H 7350 3250 50  0000 L CNN
 F 1 "Conn_01x04_Female" H 6900 3150 50  0000 L CNN
 F 2 "" H 7650 3550 50  0001 C CNN
 F 3 "~" H 7650 3550 50  0001 C CNN
@@ -193,10 +193,10 @@ AIN2(Yellow)
 Text Label 7000 3750 0    50   ~ 0
 AIN3(Green)
 $Comp
-L Connector:Conn_01x04_Male J?
+L Connector:Conn_01x04_Male J8
 U 1 1 61A9948C
 P 7750 3550
-F 0 "J?" H 7950 3250 50  0000 L CNN
+F 0 "J8" H 7950 3250 50  0000 L CNN
 F 1 "Conn_01x04_Male" H 7800 3150 50  0000 L CNN
 F 2 "" H 7750 3550 50  0001 C CNN
 F 3 "~" H 7750 3550 50  0001 C CNN
@@ -248,10 +248,10 @@ Wire Wire Line
 Wire Wire Line
 	6750 2850 6600 2850
 $Comp
-L Connector:Conn_01x03_Female J?
+L Connector:Conn_01x03_Female J13
 U 1 1 61A4BA16
 P 7650 4950
-F 0 "J?" H 7350 4800 50  0000 L CNN
+F 0 "J13" H 7350 4800 50  0000 L CNN
 F 1 "Conn_01x03_Female" H 6900 4700 50  0000 L CNN
 F 2 "" H 7650 4950 50  0001 C CNN
 F 3 "~" H 7650 4950 50  0001 C CNN
@@ -276,10 +276,10 @@ Black
 Text Label 8200 5050 2    50   ~ 0
 Yellow
 $Comp
-L Connector:Conn_01x02_Male J?
+L Connector:Conn_01x02_Male J10
 U 1 1 61AB93EA
 P 7750 4450
-F 0 "J?" H 8000 4700 50  0000 L CNN
+F 0 "J10" H 8000 4700 50  0000 L CNN
 F 1 "Conn_01x02_Male" H 7750 4600 50  0000 L CNN
 F 2 "" H 7750 4450 50  0001 C CNN
 F 3 "~" H 7750 4450 50  0001 C CNN
@@ -291,10 +291,10 @@ Red
 Text Label 8200 4550 2    50   ~ 0
 Black
 $Comp
-L Connector:Conn_01x03_Male J?
+L Connector:Conn_01x03_Male J12
 U 1 1 61AB93F4
 P 7750 4950
-F 0 "J?" H 7950 4800 50  0000 L CNN
+F 0 "J12" H 7950 4800 50  0000 L CNN
 F 1 "Conn_01x03_Male" H 7750 4700 50  0000 L CNN
 F 2 "" H 7750 4950 50  0001 C CNN
 F 3 "~" H 7750 4950 50  0001 C CNN
@@ -342,10 +342,10 @@ SCL(Black)
 Text Label 7050 6250 0    50   ~ 0
 ?(Yellow)
 $Comp
-L Connector:Conn_01x02_Female J?
+L Connector:Conn_01x02_Female J15
 U 1 1 61AF18AA
 P 7650 5650
-F 0 "J?" H 7350 5900 50  0000 L CNN
+F 0 "J15" H 7350 5900 50  0000 L CNN
 F 1 "Conn_01x02_Female" H 6900 5800 50  0000 L CNN
 F 2 "" H 7650 5650 50  0001 C CNN
 F 3 "~" H 7650 5650 50  0001 C CNN
@@ -357,10 +357,10 @@ Text Label 7050 5650 0    50   ~ 0
 Text Label 7050 5750 0    50   ~ 0
 GND(Black)
 $Comp
-L Connector:Conn_01x03_Female J?
+L Connector:Conn_01x03_Female J17
 U 1 1 61AF18B2
 P 7650 6150
-F 0 "J?" H 7350 6000 50  0000 L CNN
+F 0 "J17" H 7350 6000 50  0000 L CNN
 F 1 "Conn_01x03_Female" H 6900 5900 50  0000 L CNN
 F 2 "" H 7650 6150 50  0001 C CNN
 F 3 "~" H 7650 6150 50  0001 C CNN
@@ -374,10 +374,10 @@ Black
 Text Label 8200 6250 2    50   ~ 0
 Yellow
 $Comp
-L Connector:Conn_01x02_Male J?
+L Connector:Conn_01x02_Male J14
 U 1 1 61AF18BB
 P 7750 5650
-F 0 "J?" H 8000 5900 50  0000 L CNN
+F 0 "J14" H 8000 5900 50  0000 L CNN
 F 1 "Conn_01x02_Male" H 7750 5800 50  0000 L CNN
 F 2 "" H 7750 5650 50  0001 C CNN
 F 3 "~" H 7750 5650 50  0001 C CNN
@@ -389,10 +389,10 @@ Red
 Text Label 8200 5750 2    50   ~ 0
 Black
 $Comp
-L Connector:Conn_01x03_Male J?
+L Connector:Conn_01x03_Male J16
 U 1 1 61AF18C3
 P 7750 6150
-F 0 "J?" H 7950 6000 50  0000 L CNN
+F 0 "J16" H 7950 6000 50  0000 L CNN
 F 1 "Conn_01x03_Male" H 7750 5900 50  0000 L CNN
 F 2 "" H 7750 6150 50  0001 C CNN
 F 3 "~" H 7750 6150 50  0001 C CNN
@@ -485,10 +485,10 @@ F 3 "" H 1100 3650 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L Connector:Conn_01x03_Male J?
+L Connector:Conn_01x03_Male J25
 U 1 1 61BDCDA4
 P 2100 3950
-F 0 "J?" H 2300 3800 50  0000 L CNN
+F 0 "J25" H 2300 3800 50  0000 L CNN
 F 1 "Conn_01x03_Male" H 2100 3700 50  0000 L CNN
 F 2 "" H 2100 3950 50  0001 C CNN
 F 3 "~" H 2100 3950 50  0001 C CNN
@@ -502,10 +502,10 @@ Black
 Text Label 1650 4050 0    50   ~ 0
 Yellow
 $Comp
-L Connector:Conn_01x03_Female J?
+L Connector:Conn_01x03_Female J24
 U 1 1 61BE319B
 P 2200 3950
-F 0 "J?" H 1900 3800 50  0000 L CNN
+F 0 "J24" H 1900 3800 50  0000 L CNN
 F 1 "Conn_01x03_Female" H 1450 3700 50  0000 L CNN
 F 2 "" H 2200 3950 50  0001 C CNN
 F 3 "~" H 2200 3950 50  0001 C CNN
@@ -548,10 +548,10 @@ F 3 "" H 1100 4500 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L Connector:Conn_01x03_Male J?
+L Connector:Conn_01x03_Male J23
 U 1 1 61C28E31
 P 2100 4800
-F 0 "J?" H 2300 4650 50  0000 L CNN
+F 0 "J23" H 2300 4650 50  0000 L CNN
 F 1 "Conn_01x03_Male" H 2100 4550 50  0000 L CNN
 F 2 "" H 2100 4800 50  0001 C CNN
 F 3 "~" H 2100 4800 50  0001 C CNN
@@ -565,10 +565,10 @@ Black
 Text Label 1650 4900 0    50   ~ 0
 Yellow
 $Comp
-L Connector:Conn_01x03_Female J?
+L Connector:Conn_01x03_Female J22
 U 1 1 61C28E3A
 P 2200 4800
-F 0 "J?" H 1900 4650 50  0000 L CNN
+F 0 "J22" H 1900 4650 50  0000 L CNN
 F 1 "Conn_01x03_Female" H 1450 4550 50  0000 L CNN
 F 2 "" H 2200 4800 50  0001 C CNN
 F 3 "~" H 2200 4800 50  0001 C CNN
@@ -694,10 +694,10 @@ AIN2(Yellow)
 Text Label 7000 2200 0    50   ~ 0
 GND(Black)
 $Comp
-L Connector:Conn_01x04_Female J?
+L Connector:Conn_01x04_Female J7
 U 1 1 61B0808F
 P 7650 2200
-F 0 "J?" H 7350 1900 50  0000 L CNN
+F 0 "J7" H 7350 1900 50  0000 L CNN
 F 1 "Conn_01x04_Female" H 6900 1800 50  0000 L CNN
 F 2 "" H 7650 2200 50  0001 C CNN
 F 3 "~" H 7650 2200 50  0001 C CNN
@@ -705,10 +705,10 @@ F 3 "~" H 7650 2200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Connector:Conn_01x02_Male J?
+L Connector:Conn_01x02_Male J5
 U 1 1 61B036AF
 P 7650 1800
-F 0 "J?" H 7622 1682 50  0000 R CNN
+F 0 "J5" H 7622 1682 50  0000 R CNN
 F 1 "2 Male Header Pins (connect to Arduino)" H 7622 1773 50  0000 R CNN
 F 2 "" H 7650 1800 50  0001 C CNN
 F 3 "~" H 7650 1800 50  0001 C CNN
@@ -744,10 +744,10 @@ Black
 Text Label 8200 2100 2    50   ~ 0
 Red
 $Comp
-L Connector:Conn_01x04_Male J?
+L Connector:Conn_01x04_Male J6
 U 1 1 61AA8CA1
 P 7750 2200
-F 0 "J?" H 7950 1900 50  0000 L CNN
+F 0 "J6" H 7950 1900 50  0000 L CNN
 F 1 "Conn_01x04_Male" H 7800 1800 50  0000 L CNN
 F 2 "" H 7750 2200 50  0001 C CNN
 F 3 "~" H 7750 2200 50  0001 C CNN
@@ -804,19 +804,19 @@ Connection ~ 5450 2950
 Connection ~ 5450 4950
 Wire Wire Line
 	5250 1800 5250 1500
-Text Label 4750 1800 2    50   ~ 0
+Text Label 4900 1800 2    50   ~ 0
 Pin3(PinPE5)
 Wire Wire Line
 	3500 5250 3700 5250
 Connection ~ 3500 5250
 Wire Wire Line
 	5350 1900 5350 1500
-Text Label 4750 1900 2    50   ~ 0
+Text Label 4900 1900 2    50   ~ 0
 Pin2(PinPE4)
 Wire Wire Line
 	3800 4400 3500 4400
 Connection ~ 3500 4400
-Text Notes 3600 2800 1    50   ~ 0
+Text Notes 3600 3550 1    50   ~ 0
 Pins 2 and 3 can have\nexternal interrupts, good \nfor counting pulses
 Wire Wire Line
 	3700 1800 5250 1800
@@ -845,10 +845,6 @@ NoConn ~ 3650 1500
 NoConn ~ 3750 1500
 NoConn ~ 3850 1500
 NoConn ~ 3950 1500
-NoConn ~ 4050 1500
-NoConn ~ 4150 1500
-NoConn ~ 4250 1500
-NoConn ~ 4350 1500
 Text GLabel 5450 1000 1    50   Input ~ 0
 D1(TX0)
 Text GLabel 5350 1000 1    50   Input ~ 0
@@ -976,4 +972,45 @@ Text Notes 8200 7650 0    50   ~ 0
 Nov 12th, 2021
 Text Notes 10600 7650 0    50   ~ 0
 Original
+NoConn ~ 4050 1500
+Wire Wire Line
+	4150 1500 4150 1550
+Wire Wire Line
+	4150 1550 2250 1550
+Wire Wire Line
+	4250 1500 4250 1650
+Wire Wire Line
+	4250 1650 2250 1650
+Wire Wire Line
+	2250 1750 4350 1750
+Wire Wire Line
+	4350 1750 4350 1500
+$Comp
+L Connector:Conn_01x04_Male J26
+U 1 1 618FCEC3
+P 2050 1650
+F 0 "J26" H 2150 2000 50  0000 C CNN
+F 1 "Conn_01x04_Male" H 2150 1900 50  0000 C CNN
+F 2 "" H 2050 1650 50  0001 C CNN
+F 3 "~" H 2050 1650 50  0001 C CNN
+	1    2050 1650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4050 2200 3250 2200
+Wire Wire Line
+	3250 2200 3250 1850
+Wire Wire Line
+	3250 1850 2250 1850
+Connection ~ 4050 2200
+Text Label 2350 1550 0    50   ~ 0
+D10(Red)
+Text Label 2350 1650 0    50   ~ 0
+D9(Black)
+Text Label 2350 1750 0    50   ~ 0
+D8(Yellow)
+Text Label 2350 1850 0    50   ~ 0
+GND(Green)
+Text Notes 1250 1800 0    50   ~ 0
+4 pin Male Connector\ngoes to High Power\nCircuit Board
 $EndSCHEMATC
