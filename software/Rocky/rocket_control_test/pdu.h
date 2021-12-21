@@ -1,5 +1,7 @@
 /*defines packet data unit (pdu) for ground station commands to rocket
-and data from rocket*/
+and data from rocket.
+
+Started by Toni Pano on Dec 17th, 2021*/
 
 //commands from ground station are a single char
 #define MANUAL_CTRL_CMD 'M' //modify which actuators are turned on/off manually

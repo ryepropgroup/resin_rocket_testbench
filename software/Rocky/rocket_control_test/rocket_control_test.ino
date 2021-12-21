@@ -4,19 +4,23 @@
 
 #include "pdu.h";
 
-char GS_cmd;                //command from ground station
-char GS_manual_ctrl_flags;  //flags sent from ground station, in the event of a manual control command
-struct data_pdu pkt;        //data packet to send to ground station
+const unsigned int BAUD_RATE = 9600;  //bits per second in serial lines (radio or serial to USB output)
+char GS_cmd;                          //command from ground station
+char GS_manual_ctrl_flags;            //flags sent from ground station, in the event of a manual control command
+struct data_pdu pkt;                  //data packet to send to ground station
 
 //rocket specific states
-char rocket_state;                //current state of rocket
-char actuators;                   //on/off status for solenoid valves (SV1, SV2) and igniter (IGN1)
-uint32_t IGN1_start_t = 0;        //start time of igniter in AUTO_LAUNCH state, used for keeping igniter on for x amount of time
-uint32_t SV1_turnon_t = 800000;   //(0.08s) when to turn on fuel, relative to start of igniter ignition
-uint32_t SV2_turnon_t = 800000;   //(0.08s) when to turn on oxidizer, relative to start of igniter ignition
-uint32_t IGN1_duration = 3000000; //(0.1s) how long to fire the igniter for
-uint32_t ABORT_start_t = 0;       //start time of ABORT state, used for staying in ABORT state for x amount of time
-uint32_t ABORT_duration = 1000000;//(1.0s) how long to stay in the ABORT state before processing more commands
+char rocket_state;  //current state of rocket
+char actuators;     //on/off status for solenoid valves (SV1, SV2) and igniter (IGN1)
+#define sec 1000000 //the number of microseconds in a second (used because clock measures time in microseconds)
+uint32_t IGN1_start_t = 0;              //start time of igniter in AUTO_LAUNCH state, used for keeping igniter on for x amount of time
+const uint32_t SV1_start_t = 0.08*sec;  //(0.08s) when to turn on fuel, relative to start of igniter ignition
+const uint32_t SV2_start_t = 0.08*sec;  //(0.08s) when to turn on oxidizer, relative to start of igniter ignition
+const uint32_t IGN1_duration = 3.0*sec; //(0.1s) how long to fire the igniter for
+uint32_t ABORT_start_t = 0;               //start time of ABORT state, used for staying in ABORT state for x amount of time
+const uint32_t ABORT_duration = 1.0*sec;  //(1.0s) how long to stay in the ABORT state before processing more commands
+uint32_t FIRST_ACT_start_t = 0;               //remembers first time when any actuator on rocket turns on. Used to automatically trigger ABORT sequence, if ground station can't send ABORT command (due to radio failure)
+const uint32_t AUTO_ABORT_start_t = 5.0*sec;  //when to trigger AUTO_ABORT, relative to first actuator turning on. Either triggers in ARMED_STATE, or during LAUNCH_STATE. Will be cancelled in ARMED_STATE if all actuators are turned off manually, or through ABORT_cmd from ground station
 
 //setup() runs once, before loop() starts
 void setup() {
@@ -39,14 +43,14 @@ void setup() {
   rocket_state = ARMED_STATE; //we are missing the circuit to detect if 24V is on high voltage line, so default state is ARMED
   
   //set up radio at min freq. (9600 Hz)
-  Serial.begin(9600);
+  Serial.begin(BAUD_RATE);
 
   //set up debug console (USB port on Rocky) at min freq. (9600 Hz)
-  //Serial.begin(9600);  
+  //Serial.begin(BAUD_RATE);  
 }
 
-char temp;
 //loop() will loop indefinitely
+char temp;  //temporary variable for storing command from ground station
 void loop() {
   pkt.timestamp = micros();
 
@@ -76,13 +80,16 @@ void loop() {
   //send data packet to ground station
   //Serial.write((const char *) &pkt, sizeof(pkt));
   Serial.print(GS_cmd);
+  if(GS_cmd == MANUAL_CTRL_CMD){
+    Serial.print(GS_manual_ctrl_flags, BIN);
+  }
   Serial.print(" -> ");
   Serial.print(pkt.rocket_state);
   Serial.print(' ');
   Serial.print(pkt.actuators, BIN);
   Serial.print(' ');
-  Serial.println(pkt.timestamp);
-  delay(10);
+  Serial.println(((float)pkt.timestamp)/1000000, 8);
+  delay(100);
 }
 
 void update_rocket_state(){
@@ -94,23 +101,24 @@ void update_rocket_state(){
     }
   }
   else if(rocket_state == LAUNCH_STATE){ //auto launch state overrides any commands (except abort) until done
-    //skip to state change if ground station command is to abort
-    //Serial.println(GS_cmd);
-    if(GS_cmd == ABORT_CMD){
+    if(GS_cmd == ABORT_CMD){    //skip to state change if ground station command is to abort
         rocket_state = ARMED_STATE;
         //Serial.print("beginning of LAUNCH STATE = ");
         //Serial.println(rocket_state);
     }
+    else if(micros()-FIRST_ACT_start_t >= AUTO_ABORT_start_t){ //skip to state change and force abort if auto abort should happen
+      GS_cmd = ABORT_CMD;
+    }
     else{
       //ignition timing
       if((actuators & A_SV1) == 0){  //check if SV1 still needs to be turned on
-        if(micros()-IGN1_start_t >= SV1_turnon_t){  //do full 32 bit time comparison
+        if(micros()-IGN1_start_t >= SV1_start_t){  //do full 32 bit time comparison
           /*open SV1 here*/
           actuators = actuators | A_SV1;
         }
       }
       if((actuators & A_SV2) == 0){  //check if SV2 still needs to be turned on
-        if(micros()-IGN1_start_t >= SV2_turnon_t){  //do full 32 bit time comparison
+        if(micros()-IGN1_start_t >= SV2_start_t){  //do full 32 bit time comparison
           /*open SV2 here*/
           actuators = actuators | A_SV2;
         }
@@ -128,7 +136,12 @@ void update_rocket_state(){
   }
   
   if(rocket_state == ARMED_STATE){ //armed state allows responding to ground station commands
-    switch(GS_cmd){
+    if(actuators != 0){   //see if auto abort needs to shut off any actuators
+      if(micros()-FIRST_ACT_start_t >= AUTO_ABORT_start_t){
+        GS_cmd = ABORT_CMD;
+      }
+    }
+    switch(GS_cmd){   //respond to ground station command
       case ABORT_CMD:
         ABORT_start_t = micros(); //record abort start time to maintain abort state for specific length of time
         /*turn off all actuators here*/
@@ -137,7 +150,10 @@ void update_rocket_state(){
         break;
       case LAUNCH_CMD:
         IGN1_start_t = micros();  //record ignition start time to shut off ignition 100 ms later
-        /*torun of SV1 and SV2, and start firing IGN1 here*/
+        if(actuators == 0){ //if launch sequence turning actuators on for the first time, recorid ignition start time for auto abort timeout later in ARMED_STATE
+          FIRST_ACT_start_t = IGN1_start_t;
+        }
+        /*turn on of SV1 and SV2, and start firing IGN1 here*/
         rocket_state = GS_cmd;
         actuators = actuators | A_IGN1;   //set IGN1 flag to 1 (turn ignition on)
         actuators = actuators & (~A_SV2); //set SV1 flag to 0 (shut off fuel) 
@@ -145,8 +161,10 @@ void update_rocket_state(){
         break;
       case MANUAL_CTRL_CMD:
         actuators = GS_manual_ctrl_flags;     //expect a second data byte to follow if manual control command received
+        if(actuators != 0){ //if anything turned on, get current time to schedule auto abort later (in case of radio failure)
+          FIRST_ACT_start_t = micros();
+        }
         /*turn on or off the respctive actuators here, based on the flags in the actuator variable */
-        //rocket_state = MANUAL_CTRL_CMD;
         break;
     }
     //Serial.print("end of switch statement = ");
