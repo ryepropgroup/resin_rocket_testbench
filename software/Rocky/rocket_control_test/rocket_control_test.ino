@@ -50,7 +50,7 @@ void setup() {
 }
 
 //loop() will loop indefinitely
-char temp;  //temporary variable for storing command from ground station
+char temp;  //temporary variable for storing command from ground station (When simulating ground station commands using Rocky's serial monitor input, it helps to get rid of whitespace characters you enter, like '\n')
 void loop() {
   pkt.timestamp = micros();
 
