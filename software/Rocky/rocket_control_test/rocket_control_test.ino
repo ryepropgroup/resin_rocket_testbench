@@ -2,9 +2,10 @@
 //No data measuring is done in order to make debugging the radios easier
 //Started by Toni Pano on Dec 17th, 2021
 
-#include "pdu.h";
+#include "rocket_comms.h";   //include definitions for ground commands, rocket states, data packet, and actuator flags 
 
-const unsigned int BAUD_RATE = 9600;  //bits per second in serial lines (radio or serial to USB output)
+//stores radio comms info to send and to receive
+const unsigned int BAUD_RATE = 9600;  //bits per second in all serial lines (radio and serial to USB output)
 char GS_cmd;                          //command from ground station
 char GS_manual_ctrl_flags;            //flags sent from ground station, in the event of a manual control command
 struct data_pdu pkt;                  //data packet to send to ground station
@@ -27,7 +28,7 @@ void setup() {
   //initialize ground station value to default value (0)
   GS_cmd = 0;
   
-  //initialize all packet values to default(MAX value for timestamp, 0 for rest)
+  //initialize all packet values to default value (MAX value for timestamp, 0 for rest)
   pkt.rocket_state = 0;
   pkt.actuators = 0;
   pkt.timestamp = 0xFFFFFFFF;
@@ -43,10 +44,10 @@ void setup() {
   rocket_state = ARMED_STATE; //we are missing the circuit to detect if 24V is on high voltage line, so default state is ARMED
   
   //set up radio at min freq. (9600 Hz)
-  Serial.begin(BAUD_RATE);
+  //Serial1.begin(BAUD_RATE);
 
   //set up debug console (USB port on Rocky) at min freq. (9600 Hz)
-  //Serial.begin(BAUD_RATE);  
+  Serial.begin(BAUD_RATE);  
 }
 
 //loop() will loop indefinitely
@@ -56,14 +57,14 @@ void loop() {
 
   //read latest command byte from ground station, if available
   GS_cmd = 'E';
-  if(Serial.available()){
+  if(Serial.available() > 0){
     temp = Serial.read(); //reads a byte
     if(temp != '\n'){     //clear input of '\n' chars
       GS_cmd = temp;
     }
 
     if(GS_cmd == MANUAL_CTRL_CMD){ //read the manual control flags from following byte if manual control command sent
-      while(!Serial.available()){}//block until 2nd byte read, to make sure flags not interpreted as command by accident on next loop
+      while(Serial.available() <= 0){}//block until 2nd byte read, to make sure flags not interpreted as command by accident on next loop
       GS_manual_ctrl_flags = Serial.read() - '0';  //reads a byte
     }
   }
