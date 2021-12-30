@@ -51,7 +51,7 @@ void setup() {
   pinMode(IGN1_BTN, INPUT);
 
   //attach interrupt vectors to pins
-  sei();  //disable all interrupts, prevents them from triggering during setup
+  noInterrupts();  //disable all interrupts, prevents them from triggering during setup
   attachInterrupt(digitalPinToInterrupt(ABORT_1_BTN), ABORT_debounce, RISING);
   attachInterrupt(digitalPinToInterrupt(ABORT_2_BTN), ABORT_debounce, RISING);
   attachInterrupt(digitalPinToInterrupt(LAUNCH_BTN), LAUNCH_debounce, RISING);
@@ -59,7 +59,7 @@ void setup() {
   PCMSK0 = PCMSK0 | bit(PCINT4) | bit(PCINT5) | bit(PCINT6);  //Pin Change Mask Register 0. Choose to listen to pin change interrupts for SV1, SV2, and IGN1 pins.
   PCIFR = PCIFR | bit(PCIF0); //Pin Change Interrupt Flag Register: erase interrupt flag for PCI0 by writing a 1 to it
   PCICR = PCICR | bit(PCIE0); //Pin Change Interrupt Control Register: enable pin change interrupts for group of pins PCI0 (Pin Change Interrupt Enable 0, aka pins INT0 to INT 7);
-  cli();  //enable all interrupts after they have all been set
+  interrupts();  //enable all interrupts after they have all been set
   
   //initialize ground station command to default value (0)
   GS_cmd = 0;
@@ -163,7 +163,7 @@ void update_GS_state(){
 }
 
 void check_GS_buttons(){
-  cli();  //disable interrupts during button check. Avoids buttons erasing flag set by interrupts during this period
+  noInterrupts();  //disable interrupts during button check. Avoids buttons erasing flag set by interrupts during this period
   if(ABORT_pressed){
     if(micros()-ABORT_pressed_t >= ABORT_debounce_t){ //wait until ABORT button electrical contacts have stopped physically bouncing
       Serial.write(ABORT_CMD); //send ABORT command to rocket
@@ -197,7 +197,7 @@ void check_GS_buttons(){
       MANUAL_CTRL_changed = 0;  //avoids sending MANUAL CONTROL command until any ABORT button is pressed again
     }
   }
-  sei();  //enable interrupts after button check has set flags to 0. Any interrupts that would have triggered during button check are still waiting, and will trigger now
+  interrupts();  //enable interrupts after button check has set flags to 0. Any interrupts that would have triggered during button check are still waiting, and will trigger now
 }
 
 //debouncing functions, triggered by interrupts
