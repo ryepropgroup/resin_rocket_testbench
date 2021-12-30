@@ -15,8 +15,8 @@ char rocket_state;  //current state of rocket
 char actuators;     //on/off status for solenoid valves (SV1, SV2) and igniter (IGN1)
 #define sec 1000000 //the number of microseconds in a second (used because clock measures time in microseconds)
 uint32_t IGN1_start_t = 0;              //start time of igniter in AUTO_LAUNCH state, used for keeping igniter on for x amount of time
-const uint32_t SV1_start_t = 0.08*sec;  //(0.08s) when to turn on fuel, relative to start of igniter ignition
-const uint32_t SV2_start_t = 0.08*sec;  //(0.08s) when to turn on oxidizer, relative to start of igniter ignition
+const uint32_t SV1_start_t = 1.5*sec;  //(0.08s) when to turn on fuel, relative to start of igniter ignition
+const uint32_t SV2_start_t = 1.5*sec;  //(0.08s) when to turn on oxidizer, relative to start of igniter ignition
 const uint32_t IGN1_duration = 3.0*sec; //(0.1s) how long to fire the igniter for
 uint32_t ABORT_start_t = 0;               //start time of ABORT state, used for staying in ABORT state for x amount of time
 const uint32_t ABORT_duration = 1.0*sec;  //(1.0s) how long to stay in the ABORT state before processing more commands
@@ -55,17 +55,22 @@ char temp;  //temporary variable for storing command from ground station (When s
 void loop() {
   pkt.timestamp = micros();
 
-  //read latest command byte from ground station, if available
-  GS_cmd = 'E';
+  GS_cmd = 'E'; //E for empty, no ground station command
   if(Serial.available() > 0){
-    temp = Serial.read(); //reads a byte
-    if(temp != '\n'){     //clear input of '\n' chars
-      GS_cmd = temp;
+    temp = Serial.peek(); //reads first byte in Serial buffer without removing it from buffer
+    if(temp == '\n'){ //clear input of '\n' chars, if testing code with Serial monitor
+      Serial.read();  //remove first byte from Serial buffer
     }
-
-    if(GS_cmd == MANUAL_CTRL_CMD){ //read the manual control flags from following byte if manual control command sent
-      while(Serial.available() <= 0){}//block until 2nd byte read, to make sure flags not interpreted as command by accident on next loop
-      GS_manual_ctrl_flags = Serial.read() - '0';  //reads a byte
+    else{             //deal with ground station commands
+      if(temp == MANUAL_CTRL_CMD){  //if manual control command sent, wait for actuator flags to appear in following byte, before reading command
+        if(Serial.available() > 1){ //wait for at least 2 bytes to appear (manual control command and actuator flags)
+          GS_cmd = Serial.read();                     //read manual control command byte in Serial buffer, and remove it from buffer
+          GS_manual_ctrl_flags = Serial.read() - '0'; //read actuator flags byte in Serial buffer, and remove it from buffer. Must subtract '0' if testing with Serial monitor commands
+        }
+      }
+      else{ //otherwise expect single byte command
+        GS_cmd = Serial.read(); //read single byte command in Serial buffer, and remove it from buffer
+      }
     }
   }
   
@@ -102,16 +107,17 @@ void update_rocket_state(){
     }
   }
   else if(rocket_state == LAUNCH_STATE){ //auto launch state overrides any commands (except abort) until done
+    //Serial.print("beginning of LAUNCH STATE = ");
     if(GS_cmd == ABORT_CMD){    //skip to state change if ground station command is to abort
         rocket_state = ARMED_STATE;
-        //Serial.print("beginning of LAUNCH STATE = ");
         //Serial.println(rocket_state);
     }
     else if(micros()-FIRST_ACT_start_t >= AUTO_ABORT_start_t){ //skip to state change and force abort if auto abort should happen
       GS_cmd = ABORT_CMD;
+      rocket_state = ARMED_STATE;
+      //Serial.println("AUTO ABORT");
     }
-    else{
-      //ignition timing
+    else{ //ignition timing
       if((actuators & A_SV1) == 0){  //check if SV1 still needs to be turned on
         if(micros()-IGN1_start_t >= SV1_start_t){  //do full 32 bit time comparison
           /*open SV1 here*/
@@ -137,7 +143,7 @@ void update_rocket_state(){
   }
   
   if(rocket_state == ARMED_STATE){ //armed state allows responding to ground station commands
-    if(actuators != 0){   //see if auto abort needs to shut off any actuators
+    if(GS_cmd != ABORT_CMD && actuators != 0){   //see if auto abort needs to shut off any actuators
       if(micros()-FIRST_ACT_start_t >= AUTO_ABORT_start_t){
         GS_cmd = ABORT_CMD;
       }
