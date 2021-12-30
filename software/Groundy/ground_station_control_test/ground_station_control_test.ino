@@ -14,7 +14,6 @@ char laptop_cmd;                      //command from laptop to start sending dat
 
 //stores radio comms info between ground station and rocket
 #define PKT_LEN sizeof(data_pdu)  //size of data packet from rocket in bytes
-//byte data_buffer[5*PKT_LEN];      //circular buffer for data from rocket
 byte data_byte;                   //store a single byte of data from radio
 uint8_t pkt_byte_pos;             //position of byte being read from current packet from radio
 
@@ -61,9 +60,15 @@ void loop() {
       pkt_byte_pos = 0;
     }
   }
+
+  Serial.print("Laptop CMD: ");
+  Serial.print(laptop_cmd);
+  Serial.print(", pkt_byte #");
+  Serial.println(pkt_byte_pos);
+  delay(100);
 }
 
-void update_GS_state(char rocket_state){
+void update_GS_state(){
   //check if anything needs to be updated based on first byte of each packet
   if(pkt_byte_pos == 0){
     //update buttons on LED by reading rocket_state byte in latest packet (first byte of each packet)
