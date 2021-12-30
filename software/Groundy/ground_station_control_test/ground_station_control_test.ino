@@ -15,10 +15,8 @@ char laptop_cmd;                      //command from laptop to start sending dat
 //stores radio comms info between ground station and rocket
 #define PKT_LEN sizeof(data_pdu)  //size of data packet from rocket in bytes
 //byte data_buffer[5*PKT_LEN];      //circular buffer for data from rocket
-char data_byte;                   //store a single byte of data from radio
+byte data_byte;                   //store a single byte of data from radio
 uint8_t pkt_byte_pos;             //position of byte being read from current packet from radio
-//uint8_t store_byte_ptr;           //amount of bytes that have been read. Used to determine start and end of a packet
-//uint8_t send_byte_ptr;            //amount of bytes that have been read. Used to determine start and end of a packet
 
 //ground station states
 char GS_state;                 //state of ground station
@@ -55,13 +53,7 @@ void loop() {
   if(Serial1.available() > 0){
     data_byte = Serial1.read(); //read a single byte of data from radio
     
-    //check if any actions need to be done with data
-    if(pkt_byte_pos == 0){
-      update_GS_state(data_byte);   //only update state on 1st byte of each packet. Helps to avoid transmitting halfway through a packet  
-    }
-    if(GS_state == PASS_DATA_CMD){    //pass data to laptop if ground station in pass data state
-      Serial.write(data_byte);
-    }
+    update_GS_state();
     
     //update byte pos
     pkt_byte_pos++;               //increment bytes read
@@ -72,38 +64,46 @@ void loop() {
 }
 
 void update_GS_state(char rocket_state){
-  //update buttons on LED by reading rocket_state byte in latest packet (first byte of each packet)
-  //light LEDs if button press triggered respective state change in rocket
-  switch(rocket_state){
-    case ABORT_STATE:
-      /*turn on ABORT led*/
-      /*turn off AUTO_LAUNCH led*/
-      /*turn on ARMED led*/
-      break;
-    case LAUNCH_STATE:
-      /*turn off ABORT led*/
-      /*turn on AUTO_LAUNCH led*/
-      /*turn on ARMED led*/
-      break;
-    case ARMED_STATE:
-      /*turn off ABORT led*/
-      /*turn off AUTO_LAUNCH led*/
-      /*turn on ARMED led*/
-      break;
-    case SAFE_STATE:
-      /*turn off ABORT led*/
-      /*turn off AUTO_LAUNCH led*/
-      /*turn off ARMED led*/
-      break;
+  //check if anything needs to be updated based on first byte of each packet
+  if(pkt_byte_pos == 0){
+    //update buttons on LED by reading rocket_state byte in latest packet (first byte of each packet)
+    //light LEDs if button press triggered respective state change in rocket
+    switch(data_byte){
+      case ABORT_STATE:
+        /*turn on ABORT led*/
+        /*turn off AUTO_LAUNCH led*/
+        /*turn on ARMED led*/
+        break;
+      case LAUNCH_STATE:
+        /*turn off ABORT led*/
+        /*turn on AUTO_LAUNCH led*/
+        /*turn on ARMED led*/
+        break;
+      case ARMED_STATE:
+        /*turn off ABORT led*/
+        /*turn off AUTO_LAUNCH led*/
+        /*turn on ARMED led*/
+        break;
+      case SAFE_STATE:
+        /*turn off ABORT led*/
+        /*turn off AUTO_LAUNCH led*/
+        /*turn off ARMED led*/
+        break;
+    }
+    
+    //only update ground station state with latest laptop command on first byte of each packet. Helps to avoid transmitting to laptop halfway through a packet
+    switch(laptop_cmd){
+      case PASS_DATA_CMD:
+        GS_state = PASS_DATA_STATE;
+        break;
+      case STORE_DATA_CMD:
+        GS_state = STORE_DATA_STATE;
+        break;
+    }
   }
-
-  //switch ground station state based on latest laptop command
-  switch(laptop_cmd){
-    case PASS_DATA_CMD:
-      GS_state = PASS_DATA_STATE;
-      break;
-    case STORE_DATA_CMD:
-      GS_state = STORE_DATA_STATE;
-      break;
+  
+  //act on current ground station state, if needed
+  if(GS_state == PASS_DATA_STATE){  //pass data byte from radio to USB connection of laptop
+    Serial.write(data_byte);
   }
 }
