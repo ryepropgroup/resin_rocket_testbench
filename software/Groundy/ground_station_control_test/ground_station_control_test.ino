@@ -25,6 +25,9 @@ void setup() {
   //initialize ground station command to default value (0)
   GS_cmd = 0;
 
+  //initialize laptop command to default value ('E' for empty)
+  laptop_cmd ='E';
+
   //initialize ground station state to default (STORE DATA)
   GS_state = STORE_DATA_STATE;
   
@@ -34,17 +37,21 @@ void setup() {
   //send_byte_ptr = 0;  //
   
   //set up serial lines for radio to receive data from rocket
-  //Serial1.begin(9600);
+  Serial1.begin(9600);
     
   //set up serial to USB output for sending rocket data to laptop
   Serial.begin(9600);
 }
 
 // put your main code here, to run repeatedly:
+char temp;  //remove whitespace from laptop command, if testing with Serial monitor
 void loop() {
   //check for command from laptop
   if(Serial.available() > 0){
-    laptop_cmd = Serial.read();
+    temp = Serial.read();
+    if(temp != '\n'){   //prevents whitespace from being mistaken as laptop command, if debugging with Serial monitor
+      laptop_cmd = temp;
+    }
   }
   
   //store latest bytes in data buffer
@@ -64,7 +71,10 @@ void loop() {
   Serial.print("Laptop CMD: ");
   Serial.print(laptop_cmd);
   Serial.print(", pkt_byte #");
-  Serial.println(pkt_byte_pos);
+  Serial.print(pkt_byte_pos);
+  Serial.print(", GS_state: ");
+  Serial.println(GS_state);
+  Serial1.print('A');
   delay(100);
 }
 
