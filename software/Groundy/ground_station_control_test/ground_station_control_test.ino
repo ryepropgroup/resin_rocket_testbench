@@ -16,14 +16,14 @@
 
 //button debouncing
 #define sec 1000000 //ammount of clock periods (microseconds) in a second
-volatile uint8_t ABORT_pressed = 0;           //flag if any ABORT button was pressed (ABORT_1 or ABORT_2) 
-volatile uint32_t ABORT_pressed_t = 0;        //most recent time when any ABORT button was pressed (ABORT_1 or ABORT_2)
-const uint32_t ABORT_debounce_t = 0.1*sec;  //how long to wait before reading ABORT_1 button signals (ABORT_1 or ABORT_2)
-volatile uint8_t LAUNCH_pressed = 0;        //flag if LAUNCH button was pressed
-volatile uint32_t LAUNCH_pressed_t = 0;     //most recent time when LAUNCH button was pressed
+volatile uint8_t ABORT_changed = 0;           //flag if any ABORT button was pressed or released (ABORT_1 or ABORT_2) 
+volatile uint32_t ABORT_changed_t = 0;        //most recent time when any ABORT button changed (ABORT_1 or ABORT_2)
+const uint32_t ABORT_debounce_t = 0.1*sec;    //how long to wait before reading ABORT_1 button signals (ABORT_1 or ABORT_2)
+volatile uint8_t LAUNCH_changed = 0;        //flag if LAUNCH button was pressed or released
+volatile uint32_t LAUNCH_changed_t = 0;     //most recent time when LAUNCH button was changed
 const uint32_t LAUNCH_debounce_t = 0.1*sec; //how long to wait before reading LAUNCH button signal
-volatile uint32_t MANUAL_CTRL_changed = 0;        //flag if any MANUAL_C
-volatile uint32_t MANUAL_CTRL_changed_t = 0;      //most recent time when any MANUAL CTRL button was pressed (SV1, SV2, or IGN1)
+volatile uint32_t MANUAL_CTRL_changed = 0;        //flag if any MANUAL CONTROL buttons were pressed or released (SV1, SV2, IGN1)
+volatile uint32_t MANUAL_CTRL_changed_t = 0;      //most recent time when any MANUAL CTRL button was changed (SV1, SV2, or IGN1)
 const uint32_t MANUAL_CTRL_debounce_t = 0.1*sec;  //how long to wait before reading all MANUAL_CTRL button signals (SV1, SV2, and IGN1)
 
 char GS_cmd;                          //command to send to rocket
@@ -115,12 +115,17 @@ void loop() {
   Serial.print(" Laptop CMD: ");
   Serial.print(laptop_cmd);
   Serial.print(", GS_state: ");
-  Serial.println(GS_state);
+  Serial.print(GS_state);
+  Serial.print(", ABORT: ");
+  Serial.print(ABORT_changed);
+  Serial.print(", LAUNCH: ");
+  Serial.print(LAUNCH_changed);
+  Serial.print(", M_CTRL: ");
+  Serial.println(MANUAL_CTRL_changed);
   Serial1.print('A');
   delay(100);
 }
 
-//update state of ground station for reading or passing data. Also update LEDs based on rocket state from packet data
 void update_GS_state(){
   //update buttons on LED by reading rocket_state byte in latest packet (first byte of each packet)
   //light LEDs if button press triggered respective state change in rocket
@@ -163,24 +168,23 @@ void update_GS_state(){
   }
 }
 
-//check if button needs to be debounced
 void check_GS_buttons(){
   noInterrupts();  //disable interrupts during button check. Avoids buttons erasing flag set by interrupts during this period
                    //also disables Serial port communication
-  if(ABORT_pressed){
-    if(micros()-ABORT_pressed_t >= ABORT_debounce_t){ //wait until ABORT button electrical contacts have stopped physically bouncing
+  if(ABORT_changed){
+    if(micros()-ABORT_changed_t >= ABORT_debounce_t){ //wait until ABORT button electrical contacts have stopped physically bouncing
       if((digitalRead(ABORT_1_BTN) == 1) || (digitalRead(ABORT_2_BTN) == 1)){ //check that any ABORT button is still pressed down. Ignores rising voltage oscillations from release of button
         Serial.write(ABORT_CMD); //send ABORT command to rocket
-        ABORT_pressed = 0;        //avoids sending ABORT command until any ABORT button is pressed again
       }
+      ABORT_changed = 0;        //avoids check of ABORT button until it is pressed again
     }
   }
-  else if(LAUNCH_pressed){
-    if(micros()-LAUNCH_pressed_t >= LAUNCH_debounce_t){ //wait until LAUNCH button electrical contacts have stopped physically bouncing
+  else if(LAUNCH_changed){
+    if(micros()-LAUNCH_changed_t >= LAUNCH_debounce_t){ //wait until LAUNCH button electrical contacts have stopped physically bouncing
       if(digitalRead(LAUNCH_BTN) == 1){ //check if LAUNCH button still pressed. Ignores rising voltage oscillatios from release of button
         Serial.write(LAUNCH_CMD); //send LAUNCH command to rocket
-        LAUNCH_pressed = 0;       //avoids sending ABORT command until any ABORT button is pressed again
       }
+      LAUNCH_changed = 0;       //avoids check of LAUNCH button until it is pressed again
     }
   }
   else if(MANUAL_CTRL_changed){ //wait until last (most recently pressed/released) MANUAL CONTROL button has stopped physically bouncing its electrical contacts
@@ -201,30 +205,33 @@ void check_GS_buttons(){
       Serial.write(MANUAL_CTRL_CMD);     //send MANUAL CONTROL command to rocket
       Serial.write(GS_manual_ctrl_flags+'0'); //send flags to set actuator states on rocket (0 = off/closed, 1 = on/open)
 
-      MANUAL_CTRL_changed = 0;  //avoids sending MANUAL CONTROL command until any ABORT button is pressed again
+      MANUAL_CTRL_changed = 0;  //avoids check of MANUAL CONTROL buttons until any (SV1, SV2, IGN1) change state again
     }
   }
   interrupts(); //enable interrupts after button check has set flags to 0. Any interrupts that would have triggered during button check are still waiting, and will trigger now
                 //also enables serial port communication
 }
 
-//triggered by interrupts to start button debouncing
+//debouncing functions, triggered by interrupts
 void ABORT_debounce(){      //start debounce timer for any ABORT button
                       //flag helps to ignore somone mashing the button repeatedly, if the ABORT command has not been sent out the radio yet
-  if(!ABORT_pressed){ //ABORT_pressed_t will ignore other ABORT button if an ABORT button has already been pressed, and the ABORT command has not been sent yet.
-    ABORT_pressed_t = micros();
-    ABORT_pressed = 1;
+  if(!ABORT_changed){ //ABORT_pressed_t will ignore other ABORT button if an ABORT button has already been pressed, and the ABORT command has not been sent yet.
+    ABORT_changed_t = micros();
+    ABORT_changed = 1;
+    Serial.println("ABORT changed");
   }
 }
 
 void LAUNCH_debounce(){       //start debounce timer for LAUNCH_BTN
-  if(!LAUNCH_pressed){  //flag helps to ignore somone mashing the button repeatedly, if the LAUNCH command has not been sent out the radio yet
-    LAUNCH_pressed_t = micros();
-    LAUNCH_pressed = 1;
+  if(!LAUNCH_changed){  //flag helps to ignore somone mashing the button repeatedly, if the LAUNCH command has not been sent out the radio yet
+    LAUNCH_changed_t = micros();
+    LAUNCH_changed = 1;
+    Serial.println("LAUNCH changed");
   }
 }
 
 ISR(PCINT0_vect){  //start debounce timer for SV1, SV2 or IGN1. ISR = Interrupt Service Routine
   MANUAL_CTRL_changed_t = micros(); //no flag check used, so can't ignore button mashing. Will reset time to button which most recently changed state (SV1, SV2, or IGN1)
   MANUAL_CTRL_changed = 1;
+  Serial.println("MANUAL CONTROL changed");
 }
