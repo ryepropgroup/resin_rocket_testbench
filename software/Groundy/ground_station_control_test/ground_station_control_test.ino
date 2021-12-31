@@ -5,8 +5,13 @@
 #include "laptop_comms.h"   //include definitions for laptop commands and ground station states
 #include "rocket_comms.h"   //include definitions for ground station commands, rocket states, data packet, and actuator flags 
 
-//pin connections to buttons and LEDs, should match ground station input schematic
+//pin connections to buttons, LEDs, and buzzer. Should match ground station input schematic
 //interrupt priority order: ABORT_2 > ABORT_1 > LAUNCH > MANUAL_CTRL = INT0 > INT1 > INT5 > PCI0
+#define ABORT_LED 7   //turns on when rocket sends packet with ABORT_STATE
+#define ARMED_LED 6   //turns on when rocket sends packet with ARMED_STATE
+#define ARMED_BZR 5   //makes sound when rocket sends packet with ARMED_STATE
+#define ARMED_FRQ 2000//frequency of ARMED buzzer in Hertz
+#define LAUNCH_LED 4  //turns on when rocket sends packet with LAUNCH_STATE
 #define ABORT_1_BTN 21  //main ABORT button (D21 = PD0 = INT0) press SPACE on keyboard when debugging
 #define ABORT_2_BTN 20  //backup ABORT button (D20 = PD1 = INT1) press 'A' on keyboard when debugging
 #define LAUNCH_BTN  3   //LAUNCH sequence switch with plastic cover, functioally a button too (D3 = PE5 = INT5) press 'L' on keyboard when debugging
@@ -42,6 +47,15 @@ char GS_state;                 //state of ground station
 
 // put your setup code here, to run once:
 void setup() {
+  //initialize LED pins
+  pinMode(ABORT_LED, INPUT);
+  pinMode(ARMED_LED, INPUT);
+  pinMode(ARMED_BZR, INPUT);
+  pinMode(LAUNCH_LED, INPUT);
+  digitalWrite(ABORT_LED, HIGH);  //turn off ABORT led
+  digitalWrite(LAUNCH_LED, HIGH); //turn off LAUNCH led
+  digitalWrite(ARMED_LED, HIGH);  //turn off ARMED_LED
+
   //initialize button pins
   pinMode(ABORT_1_BTN, INPUT);
   pinMode(ABORT_2_BTN, INPUT);
@@ -130,24 +144,28 @@ void update_GS_state(){
   //light LEDs if button press triggered respective state change in rocket
   switch(pkt.rocket_state){
     case ABORT_STATE:
-      /*turn on ABORT led*/
-      /*turn off AUTO_LAUNCH led*/
-      /*turn on ARMED led*/
+      digitalWrite(ABORT_LED, LOW);   /*turn on ABORT led*/
+      digitalWrite(LAUNCH_LED, HIGH); /*turn off LAUNCH led*/
+      digitalWrite(ARMED_LED, HIGH);  /*turn on ARMED led*/
+      noTone(ARMED_BZR);              /*turn off buzzer*/
       break;
     case LAUNCH_STATE:
-      /*turn off ABORT led*/
-      /*turn on AUTO_LAUNCH led*/
-      /*turn on ARMED led*/
+      digitalWrite(ABORT_LED, HIGH);  /*turn off ABORT led*/
+      digitalWrite(LAUNCH_LED, LOW);  /*turn on LAUNCH led*/
+      digitalWrite(ARMED_LED, LOW);   /*turn off ARMED led*/
+      noTone(ARMED_BZR);              /*turn off buzzer*/
       break;
     case ARMED_STATE:
-      /*turn off ABORT led*/
-      /*turn off AUTO_LAUNCH led*/
-      /*turn on ARMED led*/
+      digitalWrite(ABORT_LED, HIGH);  /*turn off ABORT led*/
+      digitalWrite(LAUNCH_LED, HIGH); /*turn off LAUNCH led*/
+      digitalWrite(ARMED_LED, LOW);   /*turn on ARMED led*/
+      tone(ARMED_BZR, ARMED_FRQ);     /*turn on buzzer*/
       break;
     case SAFE_STATE:
-      /*turn off ABORT led*/
-      /*turn off AUTO_LAUNCH led*/
-      /*turn off ARMED led*/
+      digitalWrite(ABORT_LED, HIGH);  /*turn off ABORT led*/
+      digitalWrite(LAUNCH_LED, HIGH); /*turn off LAUNCH led*/
+      digitalWrite(ARMED_LED, HIGH);  /*turn off ARMED led*/
+      noTone(ARMED_BZR);              /*turn off buzzer*/
       break;
   }
   
