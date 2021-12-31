@@ -10,9 +10,9 @@
 #define ABORT_1_BTN 21  //main ABORT button (D21 = PD0 = INT0) press SPACE on keyboard when debugging
 #define ABORT_2_BTN 20  //backup ABORT button (D20 = PD1 = INT1) press 'A' on keyboard when debugging
 #define LAUNCH_BTN  3   //LAUNCH sequence switch with plastic cover, functioally a button too (D3 = PE5 = INT5) press 'L' on keyboard when debugging
-#define SV1_BTN     10  //MANUAL_CTRL button for solenoid valve 1 (D10 = PB4 = PCINT4, part of PCI0) press '1' on keyboard when debugging
+#define SV1_BTN     12  //MANUAL_CTRL button for solenoid valve 1 (D10 = PB4 = PCINT4, part of PCI0) press '1' on keyboard when debugging
 #define SV2_BTN     11  //MANUAL_CTRL button for solenoid valve 2 (D11 = PB5 = PCINT5, part of PCI0) press '2' on keyboard when debugging
-#define IGN1_BTN    12  //MANUAL_CTRL button for igniter 1 (D12 = PB6 = PCINT6, part of PCI0) press '3' on keyboard when debugging
+#define IGN1_BTN    10  //MANUAL_CTRL button for igniter 1 (D12 = PB6 = PCINT6, part of PCI0) press '3' on keyboard when debugging
 
 //button debouncing
 #define sec 1000000 //ammount of clock periods (microseconds) in a second
@@ -112,7 +112,7 @@ void loop() {
     check_GS_buttons();
   }
   
-  Serial.print("Laptop CMD: ");
+  Serial.print(" Laptop CMD: ");
   Serial.print(laptop_cmd);
   Serial.print(", GS_state: ");
   Serial.println(GS_state);
@@ -120,6 +120,7 @@ void loop() {
   delay(100);
 }
 
+//update state of ground station for reading or passing data. Also update LEDs based on rocket state from packet data
 void update_GS_state(){
   //update buttons on LED by reading rocket_state byte in latest packet (first byte of each packet)
   //light LEDs if button press triggered respective state change in rocket
@@ -162,18 +163,24 @@ void update_GS_state(){
   }
 }
 
+//check if button needs to be debounced
 void check_GS_buttons(){
   noInterrupts();  //disable interrupts during button check. Avoids buttons erasing flag set by interrupts during this period
+                   //also disables Serial port communication
   if(ABORT_pressed){
     if(micros()-ABORT_pressed_t >= ABORT_debounce_t){ //wait until ABORT button electrical contacts have stopped physically bouncing
-      Serial.write(ABORT_CMD); //send ABORT command to rocket
-      ABORT_pressed = 0;        //avoids sending ABORT command until any ABORT button is pressed again
+      if((digitalRead(ABORT_1_BTN) == 1) || (digitalRead(ABORT_2_BTN) == 1)){ //check that any ABORT button is still pressed down. Ignores rising voltage oscillations from release of button
+        Serial.write(ABORT_CMD); //send ABORT command to rocket
+        ABORT_pressed = 0;        //avoids sending ABORT command until any ABORT button is pressed again
+      }
     }
   }
   else if(LAUNCH_pressed){
     if(micros()-LAUNCH_pressed_t >= LAUNCH_debounce_t){ //wait until LAUNCH button electrical contacts have stopped physically bouncing
-      Serial.write(LAUNCH_CMD); //send LAUNCH command to rocket
-      LAUNCH_pressed = 0;       //avoids sending ABORT command until any ABORT button is pressed again
+      if(digitalRead(LAUNCH_BTN) == 1){ //check if LAUNCH button still pressed. Ignores rising voltage oscillatios from release of button
+        Serial.write(LAUNCH_CMD); //send LAUNCH command to rocket
+        LAUNCH_pressed = 0;       //avoids sending ABORT command until any ABORT button is pressed again
+      }
     }
   }
   else if(MANUAL_CTRL_changed){ //wait until last (most recently pressed/released) MANUAL CONTROL button has stopped physically bouncing its electrical contacts
@@ -192,15 +199,16 @@ void check_GS_buttons(){
       }
 
       Serial.write(MANUAL_CTRL_CMD);     //send MANUAL CONTROL command to rocket
-      Serial.write(GS_manual_ctrl_flags); //send flags to set actuator states on rocket (0 = off/closed, 1 = on/open)
+      Serial.write(GS_manual_ctrl_flags+'0'); //send flags to set actuator states on rocket (0 = off/closed, 1 = on/open)
 
       MANUAL_CTRL_changed = 0;  //avoids sending MANUAL CONTROL command until any ABORT button is pressed again
     }
   }
-  interrupts();  //enable interrupts after button check has set flags to 0. Any interrupts that would have triggered during button check are still waiting, and will trigger now
+  interrupts(); //enable interrupts after button check has set flags to 0. Any interrupts that would have triggered during button check are still waiting, and will trigger now
+                //also enables serial port communication
 }
 
-//debouncing functions, triggered by interrupts
+//triggered by interrupts to start button debouncing
 void ABORT_debounce(){      //start debounce timer for any ABORT button
                       //flag helps to ignore somone mashing the button repeatedly, if the ABORT command has not been sent out the radio yet
   if(!ABORT_pressed){ //ABORT_pressed_t will ignore other ABORT button if an ABORT button has already been pressed, and the ABORT command has not been sent yet.
