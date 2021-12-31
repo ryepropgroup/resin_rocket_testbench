@@ -108,9 +108,8 @@ void loop() {
     check_GS_buttons(); //check buttons after data packet arrives from rocket, and before data is sent to laptop
     update_GS_state();
   }
-  else{
-    check_GS_buttons();
-  }
+  check_GS_buttons(); //check buttons for any commands to send to rocket
+  
   
   Serial.print(" Laptop CMD: ");
   Serial.print(laptop_cmd);
