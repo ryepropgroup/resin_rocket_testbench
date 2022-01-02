@@ -187,46 +187,52 @@ void update_GS_state(){
 
 void check_GS_buttons(){
   noInterrupts();  //disable interrupts during button check. Avoids buttons erasing flag set by interrupts during this period
-                   //also disables Serial port communication
+                   //also disables serial port interrupts for communication
   if(ABORT_changed){
-    if(micros()-ABORT_changed_t >= ABORT_debounce_t){ //wait until ABORT button electrical contacts have stopped physically bouncing
-      if((digitalRead(ABORT_1_BTN) == 1) || (digitalRead(ABORT_2_BTN) == 1)){ //check that any ABORT button is still pressed down. Ignores rising voltage oscillations from release of button
-        Serial.write(ABORT_CMD); //send ABORT command to rocket
+    if(Serial.availableForWrite() >= 1){  //check if at least 1 byte command can be sent out radio
+      if(micros()-ABORT_changed_t >= ABORT_debounce_t){ //wait until ABORT button electrical contacts have stopped physically bouncing
+        if((digitalRead(ABORT_1_BTN) == 1) || (digitalRead(ABORT_2_BTN) == 1)){ //check that any ABORT button is still pressed down. Ignores rising voltage oscillations from release of button
+          Serial.write(ABORT_CMD); //send ABORT command to rocket
+        }
+        ABORT_changed = 0;        //avoids check of ABORT button until it is pressed again
       }
-      ABORT_changed = 0;        //avoids check of ABORT button until it is pressed again
     }
   }
   else if(LAUNCH_changed){
-    if(micros()-LAUNCH_changed_t >= LAUNCH_debounce_t){ //wait until LAUNCH button electrical contacts have stopped physically bouncing
-      if(digitalRead(LAUNCH_BTN) == 1){ //check if LAUNCH button still pressed. Ignores rising voltage oscillatios from release of button
-        Serial.write(LAUNCH_CMD); //send LAUNCH command to rocket
+    if(Serial.availableForWrite() >= 1){  //check if at least 1 byte command can be sent out radio
+      if(micros()-LAUNCH_changed_t >= LAUNCH_debounce_t){ //wait until LAUNCH button electrical contacts have stopped physically bouncing
+        if(digitalRead(LAUNCH_BTN) == 1){ //check if LAUNCH button still pressed. Ignores rising voltage oscillatios from release of button
+          Serial.write(LAUNCH_CMD); //send LAUNCH command to rocket
+        }
+        LAUNCH_changed = 0;       //avoids check of LAUNCH button until it is pressed again
       }
-      LAUNCH_changed = 0;       //avoids check of LAUNCH button until it is pressed again
     }
   }
   else if(MANUAL_CTRL_changed){ //wait until last (most recently pressed/released) MANUAL CONTROL button has stopped physically bouncing its electrical contacts
-    if(micros()-MANUAL_CTRL_changed_t >= MANUAL_CTRL_debounce_t){
-      GS_manual_ctrl_flags = 0;       //clear manual control flags of rocket actuators
-      
-      //set manual control flags of actuators based on button states
-      if(digitalRead(SV1_BTN) == 1){  //set flag if SV1 button was pressed
-        GS_manual_ctrl_flags = GS_manual_ctrl_flags | A_SV1;
+    if(Serial.availableForWrite() >= 2){  //check if at least 2 byte commands can be sent out radio
+      if(micros()-MANUAL_CTRL_changed_t >= MANUAL_CTRL_debounce_t){
+        GS_manual_ctrl_flags = 0;       //clear manual control flags of rocket actuators
+        
+        //set manual control flags of actuators based on button states
+        if(digitalRead(SV1_BTN) == 1){  //set flag if SV1 button was pressed
+          GS_manual_ctrl_flags = GS_manual_ctrl_flags | A_SV1;
+        }
+        if(digitalRead(SV2_BTN) == 1){  //set flag if SV2 button was pressed
+          GS_manual_ctrl_flags = GS_manual_ctrl_flags | A_SV2;
+        }
+        if(digitalRead(IGN1_BTN) == 1){ //set flag if IGN1 button was pressed
+          GS_manual_ctrl_flags = GS_manual_ctrl_flags | A_IGN1;
+        }
+  
+        Serial.write(MANUAL_CTRL_CMD);     //send MANUAL CONTROL command to rocket
+        Serial.write(GS_manual_ctrl_flags+'0'); //send flags to set actuator states on rocket (0 = off/closed, 1 = on/open)
+  
+        MANUAL_CTRL_changed = 0;  //avoids check of MANUAL CONTROL buttons until any (SV1, SV2, IGN1) change state again
       }
-      if(digitalRead(SV2_BTN) == 1){  //set flag if SV2 button was pressed
-        GS_manual_ctrl_flags = GS_manual_ctrl_flags | A_SV2;
-      }
-      if(digitalRead(IGN1_BTN) == 1){ //set flag if IGN1 button was pressed
-        GS_manual_ctrl_flags = GS_manual_ctrl_flags | A_IGN1;
-      }
-
-      Serial.write(MANUAL_CTRL_CMD);     //send MANUAL CONTROL command to rocket
-      Serial.write(GS_manual_ctrl_flags+'0'); //send flags to set actuator states on rocket (0 = off/closed, 1 = on/open)
-
-      MANUAL_CTRL_changed = 0;  //avoids check of MANUAL CONTROL buttons until any (SV1, SV2, IGN1) change state again
     }
   }
   interrupts(); //enable interrupts after button check has set flags to 0. Any interrupts that would have triggered during button check are still waiting, and will trigger now
-                //also enables serial port communication
+                //also enables serial port interrupts for communication
 }
 
 //debouncing functions, triggered by interrupts
