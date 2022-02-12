@@ -1,4 +1,4 @@
-from packet import *         #imports the data pacoet from packet.py. __init__.py needed to tell python where to start looking for import
+from packet import BAUDRATE, get_packet     #imports the data pacoet from packet.py. __init__.py needed to tell python where to start looking for import
 import serial.tools.list_ports
 
 ports = serial.tools.list_ports.comports()
@@ -26,7 +26,7 @@ for x in range(0, len(portList)):
         portVar = "COM" + str(val)
         print(portList[x])
 
-serialInst.baudrate = 9600
+serialInst.baudrate = BAUDRATE
 serialInst.port = portVar
 serialInst.open()
 
@@ -34,18 +34,11 @@ while True:
 
     # reading data while buffer
     if serialInst.in_waiting:
-        #make byte array of length 20
-        bytes = bytearray(serialInst.read(18))
-        bytes.append(0)
-        bytes.append(0)
-        packet = DATA.from_buffer(bytes)
 
-        print("type: "+str(packet.type))
-        print("state: "+str(packet.state))
-        print("timestamp: "+str(packet.timestamp))
-        print("t1: "+str(packet.t1))
-        print(packet.t2.decode('utf'))
-        print(packet.p1.decode('utf'))
-        print(packet.p2.decode('utf'))
-        print(packet.fm1.decode('utf'))
-        print(packet.fm2.decode('utf'))
+        #get consecutive bytes from USB connection, and interpret it as a data packet (a dict)
+        packet = get_packet(serialInst)
+
+        #print out each measurement stored in packet
+        for (key, value) in packet.items():
+            print(key + " = " + str(value))
+        print()
