@@ -7,7 +7,8 @@ BAUDRATE = 9600
 def get_packet(serialInst):
     #get 18 consecutive bytes from USB connection
     bytes = serialInst.read(18) #call read() func from Serial object: aka serial.Serial().read()
-
+            serialInst.write('M')
+            serialInst.write(b'00001111')
     #split data into its contents
     #array of bytes is little endian struct of: [char, char, uint32_t, uint16_t,  uint16_t,  uint16_t, uint16_t,  uint16_t,  uint16_t]
     values = struct.unpack("<ccIHHHHHH", bytes)

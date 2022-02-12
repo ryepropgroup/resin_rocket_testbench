@@ -31,7 +31,8 @@ serialInst.port = portVar
 serialInst.open()
 
 while True:
-
+    # test buttons
+    
     # reading data while buffer
     if serialInst.in_waiting:
 
