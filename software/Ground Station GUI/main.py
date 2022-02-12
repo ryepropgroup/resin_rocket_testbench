@@ -30,16 +30,22 @@ serialInst.baudrate = BAUDRATE
 serialInst.port = portVar
 serialInst.open()
 
-while True:
-    # test buttons
-    
-    # reading data while buffer
-    if serialInst.in_waiting:
+if num() is False:
+    while True:
+        # test buttons
 
-        #get consecutive bytes from USB connection, and interpret it as a data packet (a dict)
-        packet = get_packet(serialInst)
+            # reading data while buffer
+            if serialInst.in_waiting:
 
-        #print out each measurement stored in packet
-        for (key, value) in packet.items():
-            print(key + " = " + str(value))
-        print()
+                # get consecutive bytes from USB connection, and interpret it as a data packet (a dict)
+                packet = get_packet(serialInst)
+
+                #print out each measurement stored in packet
+                #for (key, value) in packet.items():
+                #   print(key + " = " + str(value))
+                #print()
+                if num() is True:
+                    print("M")
+
+elif num() is True:
+    print("M")
