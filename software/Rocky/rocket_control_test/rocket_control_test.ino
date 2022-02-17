@@ -7,12 +7,12 @@
 //stores radio comms info to send and to receive
 const unsigned int BAUD_RATE = 9600;  //bits per second in all serial lines (radio and serial to USB output)
 char GS_cmd;                          //command from ground station
-char GS_manual_ctrl_flags;            //flags sent from ground station, in the event of a manual control command
+uint16_t GS_manual_ctrl_flags;            //flags sent from ground station, in the event of a manual control command
 struct data_pdu pkt;                  //data packet to send to ground station
 
 //rocket specific states
 char rocket_state;  //current state of rocket
-char actuators;     //on/off status for solenoid valves (SV1, SV2) and igniter (IGN1)
+uint16_t actuators;     //on/off status for solenoid valves (SV1, SV2) and igniter (IGN1)
 #define sec 1000000 //the number of microseconds in a second (used because clock measures time in microseconds)
 uint32_t IGN1_start_t = 0;              //start time of igniter in AUTO_LAUNCH state, used for keeping igniter on for x amount of time
 const uint32_t SV1_start_t = 1.5*sec;  //(0.08s) when to turn on fuel, relative to start of igniter ignition
@@ -63,9 +63,10 @@ void loop() {
     }
     else{             //deal with ground station commands
       if(temp == MANUAL_CTRL_CMD){  //if manual control command sent, wait for actuator flags to appear in following byte, before reading command
-        if(Serial.available() > 1){ //wait for at least 2 bytes to appear (manual control command and actuator flags)
+        if(Serial.available() >= 3){ //wait for at least 3 bytes to appear (1 byte manual control command and 2 bytes actuator flags)
           GS_cmd = Serial.read();                     //read manual control command byte in Serial buffer, and remove it from buffer
-          GS_manual_ctrl_flags = Serial.read() - '0'; //read actuator flags byte in Serial buffer, and remove it from buffer. Must subtract '0' if testing with Serial monitor commands
+          GS_manual_ctrl_flags = Serial.read();       //read actuator flags byte for 8 lower bits in Serial buffer, and remove it from buffer. Must subtract '0' if testing with Serial monitor commands
+          GS_manual_ctrl_flags += Serial.read() << 8; //read actuator flags byte for 8 upper bits in Serial buffer, and remove it from buffer. Must subtract '0' if testing with Serial monitor commands
         }
       }
       else{ //otherwise expect single byte command
@@ -84,8 +85,8 @@ void loop() {
   pkt.actuators = actuators;
   
   //send data packet to ground station
-  //Serial.write((const char *) &pkt, sizeof(pkt));
-  Serial.print(GS_cmd);
+  Serial.write((const char *) &pkt, sizeof(pkt));
+  /*Serial.print(GS_cmd);
   if(GS_cmd == MANUAL_CTRL_CMD){
     Serial.print(GS_manual_ctrl_flags, BIN);
   }
@@ -94,8 +95,8 @@ void loop() {
   Serial.print(' ');
   Serial.print(pkt.actuators, BIN);
   Serial.print(' ');
-  Serial.println(((float)pkt.timestamp)/1000000, 8);
-  delay(100);
+  Serial.println(((float)pkt.timestamp)/1000000, 8);*/
+  delay(1000);
 }
 
 void update_rocket_state(){

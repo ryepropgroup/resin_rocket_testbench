@@ -1,6 +1,6 @@
 struct packet{
   char type;
-  char state;
+  uint16_t state;
   uint32_t timestamp;
   uint16_t t1;
   uint16_t t2;
@@ -14,7 +14,7 @@ struct packet pkt;
 
 void setup() {
   pkt.type = 'A';
-  pkt.state = 'B';
+  pkt.state = 0b1111000011110000;
   pkt.t1 = (uint16_t)1;
   pkt.t2 = (uint16_t)2;
   pkt.p1 = (uint16_t)3;
