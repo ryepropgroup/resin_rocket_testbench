@@ -1,3 +1,5 @@
+import keyboard
+
 #commands from ground station are a single char
 MANUAL_CTRL_CMD = 'M'   #manually override which actuators are turned on/off
 LAUNCH_CMD = 'L'        #auto launch
