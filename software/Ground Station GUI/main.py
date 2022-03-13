@@ -30,7 +30,7 @@ for x in range(0, len(portList)):
         print(portList[x])
 
 serialInst.baudrate = BAUDRATE
-serialInst.timeout = 0          #writing to serial USB link stalls program if timeout is non zero
+serialInst.timeout = None          #writing to serial USB link stalls program if timeout is non zero
 serialInst.write_timeout = 0    #writing to serial USB link stalls program if timeout is non zero
 serialInst.port = portVar
 serialInst.open()

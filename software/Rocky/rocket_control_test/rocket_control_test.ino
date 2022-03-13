@@ -5,7 +5,7 @@
 #include "rocket_comms.h";   //include definitions for ground commands, rocket states, data packet, and actuator flags 
 
 //stores radio comms info to send and to receive
-const unsigned int BAUD_RATE = 9600;  //bits per second in all serial lines (radio and serial to USB output)
+const unsigned int BAUD_RATE = 9600;//230400;  //bits per second in all serial lines (radio and serial to USB output)
 char GS_cmd;                          //command from ground station
 uint16_t GS_manual_ctrl_flags;            //flags sent from ground station, in the event of a manual control command
 struct data_pdu pkt;                  //data packet to send to ground station
@@ -44,10 +44,10 @@ void setup() {
   rocket_state = ARMED_STATE; //we are missing the circuit to detect if 24V is on high voltage line, so default state is ARMED
   
   //set up radio at min freq. (9600 Hz)
-  //Serial1.begin(BAUD_RATE);
+  Serial1.begin(BAUD_RATE);
 
   //set up debug console (USB port on Rocky) at min freq. (9600 Hz)
-  Serial.begin(BAUD_RATE);  
+  Serial.begin(9600);  
 }
 
 //loop() will loop indefinitely
@@ -56,21 +56,21 @@ void loop() {
   pkt.timestamp = micros();
 
   GS_cmd = 'E'; //E for empty, no ground station command
-  if(Serial.available() > 0){
-    temp = Serial.peek(); //reads first byte in Serial buffer without removing it from buffer
+  if(Serial1.available() > 0){
+    temp = Serial1.peek(); //reads first byte in Serial buffer without removing it from buffer
     if(temp == '\n'){ //clear input of '\n' chars, if testing code with Serial monitor
-      Serial.read();  //remove first byte from Serial buffer
+      Serial1.read();  //remove first byte from Serial buffer
     }
     else{             //deal with ground station commands
       if(temp == MANUAL_CTRL_CMD){  //if manual control command sent, wait for actuator flags to appear in following byte, before reading command
-        if(Serial.available() >= 3){ //wait for at least 3 bytes to appear (1 byte manual control command and 2 bytes actuator flags)
-          GS_cmd = Serial.read();                     //read manual control command byte in Serial buffer, and remove it from buffer
-          GS_manual_ctrl_flags = Serial.read();       //read actuator flags byte for 8 lower bits in Serial buffer, and remove it from buffer. Must subtract '0' if testing with Serial monitor commands
-          GS_manual_ctrl_flags += Serial.read() << 8; //read actuator flags byte for 8 upper bits in Serial buffer, and remove it from buffer. Must subtract '0' if testing with Serial monitor commands
+        if(Serial1.available() >= 3){ //wait for at least 3 bytes to appear (1 byte manual control command and 2 bytes actuator flags)
+          GS_cmd = Serial1.read();                     //read manual control command byte in Serial buffer, and remove it from buffer
+          GS_manual_ctrl_flags = Serial1.read();       //read actuator flags byte for 8 lower bits in Serial buffer, and remove it from buffer. Must subtract '0' if testing with Serial monitor commands
+          GS_manual_ctrl_flags += Serial1.read() << 8; //read actuator flags byte for 8 upper bits in Serial buffer, and remove it from buffer. Must subtract '0' if testing with Serial monitor commands
         }
       }
       else{ //otherwise expect single byte command
-        GS_cmd = Serial.read(); //read single byte command in Serial buffer, and remove it from buffer
+        GS_cmd = Serial1.read(); //read single byte command in Serial buffer, and remove it from buffer
       }
     }
   }
@@ -85,7 +85,7 @@ void loop() {
   pkt.actuators = actuators;
   
   //send data packet to ground station
-  Serial.write((const char *) &pkt, sizeof(pkt));
+  Serial1.write((byte *) &pkt, sizeof(pkt));
   /*Serial.print(GS_cmd);
   if(GS_cmd == MANUAL_CTRL_CMD){
     Serial.print(GS_manual_ctrl_flags, BIN);

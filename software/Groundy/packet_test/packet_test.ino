@@ -29,6 +29,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   pkt.timestamp = (uint32_t)micros();
   Serial.write((byte *)&pkt, sizeof(pkt));
+  //Serial.println();
   delay(500);
   pkt.t1++;
 }
