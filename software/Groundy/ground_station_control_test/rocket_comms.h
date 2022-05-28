@@ -17,7 +17,7 @@ Started by Toni Pano on Dec 17th, 2021*/
 //packet for rocket data
 struct data_pdu{
   char rocket_state;  //current state of the rocket as a char (safe, armed, launching, aborting, manual control, etc).
-  byte actuators;     //each bit is a an on/off flag representing SV1, SV2, and IGN1;
+  uint16_t actuators;     //each bit is a an on/off flag representing SV1, SV2, and IGN1;
   uint32_t timestamp; //timestamp for measurements
   uint16_t t[2];      //readings of temperature sensors 1 and 2
   uint16_t p[2];      //readings of pressure sensors 1 and 2
@@ -25,6 +25,17 @@ struct data_pdu{
 };
 
 //actuator bit positions
-byte A_SV1 =  0b00000001; //solenoid valve 1 (fuel)
-byte A_SV2 =  0b00000010; //solenoid valve 2 (oxidizer)
-byte A_IGN1 = 0b00000100; //igniter 1 (solid rocket motor)
+byte A_SV1  =  0b0000000000000001;  //solenoid valve 1 (fuel)
+byte A_SV2  =  0b0000000000000010;  //solenoid valve 2 (oxidizer)
+byte A_SV3  =  0b0000000000000100;
+byte A_SV4  =  0b0000000000001000;
+byte A_SV5  =  0b0000000000010000;
+byte A_SV6  =  0b0000000000100000;
+byte A_SV7  =  0b0000000001000000;
+byte A_SV8  =  0b0000000010000000;
+byte A_SV9  =  0b0000000100000000;
+byte A_SV10 =  0b0000001000000000;
+byte A_SV11 =  0b0000010000000000;
+byte A_SV12 =  0b0000100000000000;
+byte A_SV13 =  0b0001000000000000;
+byte A_IGN1 =  0b0010000000000000;  //igniter 1 (solid rocket motor)
