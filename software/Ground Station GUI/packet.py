@@ -6,7 +6,9 @@ BAUDRATE = 9600
 #convert a consecutive array of data bytes into a dict of the data contents
 def get_packet(serialInst):
     #get 18 consecutive bytes from USB connection
+
     bytes = serialInst.read(19) #call read() func from Serial object: aka serial.Serial().read()
+
             #serialInst.write('M')
             #serialInst.write(b'00001111')
     #split data into its contents

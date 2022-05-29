@@ -7,17 +7,14 @@
 
 //pin connections to buttons, LEDs, and buzzer. Should match ground station input schematic
 //interrupt priority order: ABORT_2 > ABORT_1 > LAUNCH > MANUAL_CTRL = INT0 > INT1 > INT5 > PCI0
-#define ABORT_LED 7   //turns on when rocket sends packet with ABORT_STATE
-#define ARMED_LED 8   //turns on when rocket sends packet with ARMED_STATE
-#define ARMED_BZR 5   //makes sound when rocket sends packet with ARMED_STATE
-#define ARMED_FRQ 2000//frequency of ARMED buzzer in Hertz
-#define LAUNCH_LED 2  //turns on when rocket sends packet with LAUNCH_STATE
-#define ABORT_1_BTN 21  //main ABORT button (D21 = PD0 = INT0) press SPACE on keyboard when debugging
-#define ABORT_2_BTN 20  //backup ABORT button (D20 = PD1 = INT1) press 'A' on keyboard when debugging
-#define LAUNCH_BTN  3   //LAUNCH sequence switch with plastic cover, functioally a button too (D3 = PE5 = INT5) press 'L' on keyboard when debugging
-#define SV1_BTN     12  //MANUAL_CTRL button for solenoid valve 1 (D10 = PB4 = PCINT4, part of PCI0) press '1' on keyboard when debugging
-#define SV2_BTN     11  //MANUAL_CTRL button for solenoid valve 2 (D11 = PB5 = PCINT5, part of PCI0) press '2' on keyboard when debugging
-#define IGN1_BTN    10  //MANUAL_CTRL button for igniter 1 (D12 = PB6 = PCINT6, part of PCI0) press '3' on keyboard when debugging
+#define ABORT_LED   7   //turns on when rocket sends packet with ABORT_STATE
+#define ARMED_LED   8   //turns on when rocket sends packet with ARMED_STATE
+#define ARMED_BZR   5   //makes sound when rocket sends packet with ARMED_STATE
+#define ARMED_FRQ   2000//frequency of ARMED buzzer in Hertz
+#define LAUNCH_LED  11  //turns on when rocket sends packet with LAUNCH_STATE
+#define ABORT_BTN 21  //main ABORT button (D21 = PD0 = INT0) press SPACE on keyboard when debugging
+#define RESET_BTN 12  //backup ABORT button (D20 = PD1 = INT1) press 'A' on keyboard when debugging
+#define LAUNCH_BTN  2   //LAUNCH sequence switch with plastic cover, functioally a button too (D3 = PE5 = INT5) press 'L' on keyboard when debugging
 
 //button debouncing
 #define sec 1000000 //ammount of clock periods (microseconds) in a second
@@ -42,11 +39,20 @@ char laptop_cmd;                      //command from laptop to start sending dat
 #define PKT_LEN sizeof(data_pdu)  //size of data packet from rocket in bytes
 struct data_pdu pkt;                   //store a single byte of data from radio
 
+byte RESET_PKT[PKT_LEN]; 
+
 //ground station states
 char GS_state;                 //state of ground station
 
 // put your setup code here, to run once:
 void setup() {
+  //fill reset packet with \0 chars
+  int i;
+  for(i = 0; i < sizeof(RESET_PKT); i++){
+    RESET_PKT[i] = '\0';
+  }
+
+  
   //initialize LED pins
   pinMode(ABORT_LED, OUTPUT);
   pinMode(ARMED_LED, OUTPUT);
@@ -57,17 +63,14 @@ void setup() {
   digitalWrite(ARMED_LED, HIGH);  //turn off ARMED_LED
 
   //initialize button pins
-  pinMode(ABORT_1_BTN, INPUT);
-  pinMode(ABORT_2_BTN, INPUT);
+  pinMode(ABORT_BTN, INPUT);
+  pinMode(RESET_BTN, INPUT_PULLUP);
   pinMode(LAUNCH_BTN, INPUT);
-  pinMode(SV1_BTN, INPUT);
-  pinMode(SV2_BTN, INPUT);
-  pinMode(IGN1_BTN, INPUT);
 
   //attach interrupt vectors to pins
   noInterrupts();  //disable all interrupts, prevents them from triggering during setup
-  attachInterrupt(digitalPinToInterrupt(ABORT_1_BTN), ABORT_debounce, RISING);
-  attachInterrupt(digitalPinToInterrupt(ABORT_2_BTN), ABORT_debounce, RISING);
+  attachInterrupt(digitalPinToInterrupt(ABORT_BTN), ABORT_debounce, RISING);
+  //attachInterrupt(digitalPinToInterrupt(RESET_BTN), ABORT_debounce, RISING);
   attachInterrupt(digitalPinToInterrupt(LAUNCH_BTN), LAUNCH_debounce, RISING);
   //set interrupts for manual control buttons
   PCMSK0 = PCMSK0 | bit(PCINT4) | bit(PCINT5) | bit(PCINT6);  //Pin Change Mask Register 0. Choose to listen to pin change interrupts for SV1, SV2, and IGN1 pins.
@@ -130,10 +133,10 @@ void loop() {
     Serial1.readBytes((byte *)&pkt, PKT_LEN); //read all bytes of rocket data into packet
     Serial.write((byte *)&pkt, PKT_LEN);
     //Serial.println();
-    /*check_GS_buttons();*/ //check buttons after data packet arrives from rocket, and before data is sent to laptop
+    check_GS_buttons(); //check buttons after data packet arrives from rocket, and before data is sent to laptop
     update_GS_state();
   }
-  /*check_GS_buttons();*/ //check buttons for any commands to send to rocket
+  check_GS_buttons(); //check buttons for any commands to send to rocket
   
   /*Serial.print(" Laptop CMD: ");
   Serial.print(laptop_cmd);
@@ -155,25 +158,25 @@ void update_GS_state(){
   switch(pkt.rocket_state){
     case ABORT_STATE:
       digitalWrite(ABORT_LED, LOW);   /*turn on ABORT led*/
-      digitalWrite(LAUNCH_LED, HIGH); /*turn off LAUNCH led*/
+      digitalWrite(LAUNCH_LED, LOW); /*turn off LAUNCH led*/
       digitalWrite(ARMED_LED, HIGH);  /*turn on ARMED led*/
       noTone(ARMED_BZR);              /*turn off buzzer*/
       break;
     case LAUNCH_STATE:
       digitalWrite(ABORT_LED, HIGH);  /*turn off ABORT led*/
-      digitalWrite(LAUNCH_LED, LOW);  /*turn on LAUNCH led*/
+      digitalWrite(LAUNCH_LED, HIGH);  /*turn on LAUNCH led*/
       digitalWrite(ARMED_LED, HIGH);   /*turn off ARMED led*/
       noTone(ARMED_BZR);              /*turn off buzzer*/
       break;
     case ARMED_STATE:
       digitalWrite(ABORT_LED, HIGH);  /*turn off ABORT led*/
-      digitalWrite(LAUNCH_LED, HIGH); /*turn off LAUNCH led*/
+      digitalWrite(LAUNCH_LED, LOW); /*turn off LAUNCH led*/
       digitalWrite(ARMED_LED, LOW);   /*turn on ARMED led*/
       tone(ARMED_BZR, ARMED_FRQ);     /*turn on buzzer*/
       break;
     case SAFE_STATE:
       digitalWrite(ABORT_LED, HIGH);  /*turn off ABORT led*/
-      digitalWrite(LAUNCH_LED, HIGH); /*turn off LAUNCH led*/
+      digitalWrite(LAUNCH_LED, LOW); /*turn off LAUNCH led*/
       digitalWrite(ARMED_LED, HIGH);  /*turn off ARMED led*/
       noTone(ARMED_BZR);              /*turn off buzzer*/
       //Serial.println("ARMED");
@@ -210,7 +213,7 @@ void check_GS_buttons(){
   if(ABORT_changed){
     if(Serial1.availableForWrite() >= 1){  //check if at least 1 byte command can be sent out radio
       if(micros()-ABORT_changed_t >= ABORT_debounce_t){ //wait until ABORT button electrical contacts have stopped physically bouncing
-        if((digitalRead(ABORT_1_BTN) == 1) || (digitalRead(ABORT_2_BTN) == 1)){ //check that any ABORT button is still pressed down. Ignores rising voltage oscillations from release of button
+        if(digitalRead(ABORT_BTN) == 1){ //check that any ABORT button is still pressed down. Ignores rising voltage oscillations from release of button
           Serial1.write(ABORT_CMD); //send ABORT command to rocket
         }
         ABORT_changed = 0;        //avoids check of ABORT button until it is pressed again
@@ -227,31 +230,11 @@ void check_GS_buttons(){
       }
     }
   }
-  else if(MANUAL_CTRL_changed){ //wait until last (most recently pressed/released) MANUAL CONTROL button has stopped physically bouncing its electrical contacts
-    if(Serial1.availableForWrite() >= 2){  //check if at least 2 byte commands can be sent out radio
-      if(micros()-MANUAL_CTRL_changed_t >= MANUAL_CTRL_debounce_t){
-        GS_manual_ctrl_flags = 0;       //clear manual control flags of rocket actuators
-        
-        //set manual control flags of actuators based on button states
-        if(digitalRead(SV1_BTN) == 1){  //set flag if SV1 button was pressed
-          GS_manual_ctrl_flags = GS_manual_ctrl_flags | A_SV1;
-        }
-        if(digitalRead(SV2_BTN) == 1){  //set flag if SV2 button was pressed
-          GS_manual_ctrl_flags = GS_manual_ctrl_flags | A_SV2;
-        }
-        if(digitalRead(IGN1_BTN) == 1){ //set flag if IGN1 button was pressed
-          GS_manual_ctrl_flags = GS_manual_ctrl_flags | A_IGN1;
-        }
-  
-        Serial1.write(MANUAL_CTRL_CMD);     //send MANUAL CONTROL command to rocket
-        Serial1.write(GS_manual_ctrl_flags+'0'); //send flags to set actuator states on rocket (0 = off/closed, 1 = on/open)
-  
-        MANUAL_CTRL_changed = 0;  //avoids check of MANUAL CONTROL buttons until any (SV1, SV2, IGN1) change state again
-      }
-    }
-  }
   interrupts(); //enable interrupts after button check has set flags to 0. Any interrupts that would have triggered during button check are still waiting, and will trigger now
                 //also enables serial port interrupts for communication
+  /*if(digitalRead(RESET_BTN) == 0){
+    Serial.write(RESET_PKT, sizeof(PKT_LEN));
+  }*/
 }
 
 //debouncing functions, triggered by interrupts
@@ -270,10 +253,4 @@ void LAUNCH_debounce(){       //start debounce timer for LAUNCH_BTN
     LAUNCH_changed = 1;
     //Serial.println("LAUNCH changed");
   }
-}
-
-ISR(PCINT0_vect){  //start debounce timer for SV1, SV2 or IGN1. ISR = Interrupt Service Routine
-  MANUAL_CTRL_changed_t = micros(); //no flag check used, so can't ignore button mashing. Will reset time to button which most recently changed state (SV1, SV2, or IGN1)
-  MANUAL_CTRL_changed = 1;
-  //Serial.println("MANUAL CONTROL changed");
 }
